@@ -21,13 +21,18 @@ import testproject.currencyrateservice.exception.UnauthorizedUserException;
 @Slf4j
 public class WebClientConfiguration {
 
-    private final WebClient webClient;
+    private static final String CURRENCY_MOCKS_FIAT_URL = "/fiat-currency-rates";
+    private static final String CURRENCY_MOCKS_CRYPTO_URL = "/crypto-currency-rates";
+    private static final String SECRET_KEY_HEADER = "X-API-KEY";
 
+    private final WebClient webClient;
     private final String secretKey;
 
     @Autowired
-    public WebClientConfiguration(@Value("${currency-rate-server.url}") String baseUrl,
-                                  @Value("${currency-rate-server.secret-key}") String secretKey) {
+    public WebClientConfiguration(
+            @Value("${currency-rate-server.url}") String baseUrl,
+            @Value("${currency-rate-server.secret-key}") String secretKey
+    ) {
         this.secretKey = secretKey;
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
@@ -37,35 +42,35 @@ public class WebClientConfiguration {
 
     public Flux<FiatCurrencyRateDTO> fetchFiatRates() {
         return webClient.get()
-                .uri("/fiat-currency-rates")
-                .header("X-API-KEY", secretKey)
+                .uri(CURRENCY_MOCKS_FIAT_URL)
+                .header(SECRET_KEY_HEADER, secretKey)
                 .retrieve()
                 .onStatus(HttpStatus.UNAUTHORIZED::equals, response -> {
-                    log.error("Fiat API: Unauthorized access");
+                    log.error("Currency mocks FIAT API: Unauthorized access");
                     return Mono.error(new ServerConnectionException("Invalid API key"));
                 })
                 .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals, response -> {
-                    log.info("Fiat API: Server error occurred");
-                    return Mono.error(new UnauthorizedUserException("Fiat API Error"));
+                    log.info("Currency mocks FIAT API: Server error occurred");
+                    return Mono.error(new UnauthorizedUserException("Currency mocks FIAT API Error"));
                 })
                 .bodyToFlux(FiatCurrencyRateDTO.class)
                 .onErrorResume(UnauthorizedUserException.class, e -> {
-                    log.info("Fiat API fallback due to: {}", e.getMessage());
+                    log.info("Currency mocks FIAT API fallback due to: {}", e.getMessage());
                     return Flux.empty();
                 });
     }
 
     public Flux<CryptoCurrencyRateDTO> fetchCryptoRates() {
         return webClient.get()
-                .uri("/crypto-currency-rates")
+                .uri(CURRENCY_MOCKS_CRYPTO_URL)
                 .retrieve()
                 .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals, response -> {
-                    log.info("Crypto API: Server error occurred");
-                    return Mono.error(new UnauthorizedUserException("Crypto API Error"));
+                    log.info("Currency mocks CRYPTO API: Server error occurred");
+                    return Mono.error(new UnauthorizedUserException("Currency mocks CRYPTO API Error"));
                 })
                 .bodyToFlux(CryptoCurrencyRateDTO.class)
                 .onErrorResume(UnauthorizedUserException.class, e -> {
-                    log.info("Crypto API fallback due to: {}", e.getMessage());
+                    log.info("Currency mocks CRYPTO API fallback due to: {}", e.getMessage());
                     return Flux.empty();
                 });
     }
