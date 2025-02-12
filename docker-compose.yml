@@ -1,0 +1,53 @@
+services:
+  db:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=currency-rate-service-db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - currency-rate-service-network
+
+  currency-mocks:
+    container_name: currency-mocks-container
+    image: docker.io/illenko/currencies-mocks:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - currency-rate-service-network
+
+  currency-rate-service:
+    container_name: currency-rate-service-app
+    build:
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      POSTGRES_URL: postgresql://db:5432/currency-rate-service-db
+      POSTGRES_USERNAME: admin
+      POSTGRES_PASSWORD: secret
+      SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db/changelog/db.changelog-master.yml
+      SPRING_LIQUIBASE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      CURRENCY_RATE_SERVER_URL: http://currency-mocks:8080
+      CURRENCY_RATE_SERVER_SECRET_KEY: secret-key
+    networks:
+      - currency-rate-service-network
+
+volumes:
+  pgdata:
+
+networks:
+  currency-rate-service-network:

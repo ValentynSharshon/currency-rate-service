@@ -1,0 +1,20 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: currency-rate-service
+  r2dbc:
+    url: r2dbc:${POSTGRES_URL}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+  liquibase:
+    url: jdbc:${POSTGRES_URL}
+    user: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    change-log: ${SPRING_LIQUIBASE_CHANGE_LOG}
+    driver-class-name: ${SPRING_LIQUIBASE_DRIVER_CLASS_NAME}
+
+currency-rate-server:
+  url: ${CURRENCY_RATE_SERVER_URL}
+  secret-key: ${CURRENCY_RATE_SERVER_SECRET_KEY}
