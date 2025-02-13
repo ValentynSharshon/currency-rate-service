@@ -3,7 +3,6 @@ package testproject.currencyrateservice.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import testproject.currencyrateservice.config.WebClientConfiguration;
 import testproject.currencyrateservice.dto.CurrencyRatesResponseDTO;
 import testproject.currencyrateservice.model.CurrencyRate;
 import testproject.currencyrateservice.model.CurrencyType;
@@ -17,11 +16,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CurrencyRateServiceImpl implements CurrencyRateService {
 
-    private final WebClientConfiguration webClientConfiguration;
+    private final CurrencyMockApiService currencyMockApiService;
     private final CurrencyRateRepository currencyRateRepository;
 
     public Mono<CurrencyRatesResponseDTO> getCurrencyRates() {
-        var fiatRates = webClientConfiguration.fetchFiatRates()
+        var fiatRates = currencyMockApiService.fetchFiatRates()
                 .map(dto -> CurrencyRate.builder()
                         .currency(dto.getCurrency())
                         .rate(dto.getRate())
@@ -37,7 +36,7 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
                         .switchIfEmpty(currencyRateRepository.save(rate)))
                 .switchIfEmpty(currencyRateRepository.findAllByType(CurrencyType.FIAT));
 
-        var cryptoRates = webClientConfiguration.fetchCryptoRates()
+        var cryptoRates = currencyMockApiService.fetchCryptoRates()
                 .map(dto -> CurrencyRate.builder()
                         .currency(dto.getName())
                         .rate(dto.getValue())
@@ -62,7 +61,6 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
                 )
         );
     }
-
 
     private List<CurrencyRatesResponseDTO.CurrencyRate> mapToResponse(List<CurrencyRate> rates) {
         return rates.stream()
