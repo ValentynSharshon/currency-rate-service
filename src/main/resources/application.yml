@@ -17,4 +17,7 @@ spring:
 
 currency-rate-server:
   url: ${CURRENCY_RATE_SERVER_URL}
+  header-name: ${CURRENCY_RATE_SERVER_HEADER_NAME}
   secret-key: ${CURRENCY_RATE_SERVER_SECRET_KEY}
+  fiat-url: ${CURRENCY_RATE_SERVER_FIAT_URL}
+  crypto-url: ${CURRENCY_RATE_SERVER_CRYPTO_URL}
