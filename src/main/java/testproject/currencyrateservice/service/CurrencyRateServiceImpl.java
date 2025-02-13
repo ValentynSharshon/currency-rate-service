@@ -2,7 +2,6 @@ package testproject.currencyrateservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import testproject.currencyrateservice.config.WebClientConfiguration;
 import testproject.currencyrateservice.dto.CurrencyRatesResponseDTO;
@@ -22,7 +21,7 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
     private final CurrencyRateRepository currencyRateRepository;
 
     public Mono<CurrencyRatesResponseDTO> getCurrencyRates() {
-        Flux<CurrencyRate> fiatRates = webClientConfiguration.fetchFiatRates()
+        var fiatRates = webClientConfiguration.fetchFiatRates()
                 .map(dto -> CurrencyRate.builder()
                         .currency(dto.getCurrency())
                         .rate(dto.getRate())
@@ -38,7 +37,7 @@ public class CurrencyRateServiceImpl implements CurrencyRateService {
                         .switchIfEmpty(currencyRateRepository.save(rate)))
                 .switchIfEmpty(currencyRateRepository.findAllByType(CurrencyType.FIAT));
 
-        Flux<CurrencyRate> cryptoRates = webClientConfiguration.fetchCryptoRates()
+        var cryptoRates = webClientConfiguration.fetchCryptoRates()
                 .map(dto -> CurrencyRate.builder()
                         .currency(dto.getName())
                         .rate(dto.getValue())
