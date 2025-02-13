@@ -42,7 +42,10 @@ services:
       SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db/changelog/db.changelog-master.yml
       SPRING_LIQUIBASE_DRIVER_CLASS_NAME: org.postgresql.Driver
       CURRENCY_RATE_SERVER_URL: http://currency-mocks:8080
+      CURRENCY_RATE_SERVER_HEADER_NAME: X-API-KEY
       CURRENCY_RATE_SERVER_SECRET_KEY: secret-key
+      CURRENCY_RATE_SERVER_FIAT_URL: /fiat-currency-rates
+      CURRENCY_RATE_SERVER_CRYPTO_URL: /crypto-currency-rates
     networks:
       - currency-rate-service-network
 
