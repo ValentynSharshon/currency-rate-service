@@ -8,7 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import testproject.currencyrateservice.config.WebClientConfiguration;
 import testproject.currencyrateservice.dto.CryptoCurrencyRateDTO;
 import testproject.currencyrateservice.dto.CurrencyRatesResponseDTO;
 import testproject.currencyrateservice.dto.FiatCurrencyRateDTO;
@@ -31,7 +30,7 @@ class CurrencyRateServiceImplTest {
     private static final String CURRENCY_CODE_BTC = "BTC";
 
     @Mock
-    private WebClientConfiguration webClientConfiguration;
+    private CurrencyMockApiService currencyMockApiService;
 
     @Mock
     private CurrencyRateRepository currencyRateRepository;
@@ -44,22 +43,19 @@ class CurrencyRateServiceImplTest {
         FiatCurrencyRateDTO fiatRateDTO = new FiatCurrencyRateDTO(CURRENCY_CODE_USD, BigDecimal.valueOf(1.2));
         CryptoCurrencyRateDTO cryptoRateDTO = new CryptoCurrencyRateDTO(CURRENCY_CODE_BTC, BigDecimal.valueOf(35000));
 
-        when(webClientConfiguration.fetchFiatRates()).thenReturn(Flux.just(fiatRateDTO));
-
-        when(webClientConfiguration.fetchCryptoRates()).thenReturn(Flux.just(cryptoRateDTO));
+        when(currencyMockApiService.fetchFiatRates()).thenReturn(Flux.just(fiatRateDTO));
+        when(currencyMockApiService.fetchCryptoRates()).thenReturn(Flux.just(cryptoRateDTO));
 
         when(currencyRateRepository.save(any(CurrencyRate.class)))
                 .thenReturn(Mono.just(new CurrencyRate()));
 
         when(currencyRateRepository.findByCurrencyAndType(eq(CURRENCY_CODE_USD), eq(CurrencyType.FIAT)))
                 .thenReturn(Mono.empty());
-
         when(currencyRateRepository.findByCurrencyAndType(eq(CURRENCY_CODE_BTC), eq(CurrencyType.CRYPTO)))
                 .thenReturn(Mono.empty());
 
         when(currencyRateRepository.findAllByType(CurrencyType.FIAT))
                 .thenReturn(Flux.empty());
-
         when(currencyRateRepository.findAllByType(CurrencyType.CRYPTO))
                 .thenReturn(Flux.empty());
 

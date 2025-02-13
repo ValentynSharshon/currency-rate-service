@@ -6,4 +6,7 @@ spring:
 
 currency-rate-server:
   url: placeholder
+  header-name: placeholder
   secret-key: placeholder
+  fiat-url: placeholder
+  crypto-url: placeholder
